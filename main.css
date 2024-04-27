@@ -1,0 +1,90 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+body {
+  width: 100vw;
+  height: 100vh;
+  background-color: #121212;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding-bottom: 100px;
+  margin: 0;
+}
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+}
+
+.ball-enclosure {
+  width: 50vw;
+}
+
+.ball {
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 50px #fff, inset 20px 0 60px #ee82ee, inset -20px 0 60px #0ff, inset 20px 0 300px #ee82ee, inset -20px 0 300px #0ff,
+    0 0 5px #fff, -10px 0 60px #ee82ee, 10px 0 60px #0ff;
+  animation: load 2s infinite;
+  margin: 100px;
+}
+.input-collector {
+  display: flex;
+  flex-direction: column;
+  margin: 100px;
+}
+.inputs {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 5px;
+  padding: 10px;
+  position: fixed; /* Add this line */
+  bottom: 20px; /* Add this line */
+  left: 0; /* Add this line */
+  right: 0; /* Add this line */
+}
+.token {
+  flex-grow: 1;
+  color: #fff;
+  margin-top: 40px;
+}
+#languageSelection,
+#speechProvider,
+#rag {
+  padding: 10px; /* Add this line */
+  font-size: 1.1em; /* Add this line */
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  margin: 20px;
+}
+
+#toggleWebSocket {
+  background-color: #04602f; /* Add this line */
+  color: #fff; /* Add this line */
+  padding: 10px; /* Add this line */
+  font-size: 1.1em; /* Add this line */
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  margin: 20px;
+}
+
+#toggleWebSocket:hover {
+  background-color: #555; /* Add this line */
+  transform: scale(1.1); /* Add this line */
+}
+@keyframes load {
+  0% {
+    transform: rotate(0);
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(100deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

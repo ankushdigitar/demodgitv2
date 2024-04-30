@@ -47,10 +47,12 @@
       let audioContext;
       let nextStartTime;
       let audioPlaying = false;
+      let recordTime;
       let audioQueue = [];
 
       function toggleWebSocket() {
         if (ws && ws.readyState === WebSocket.OPEN) {
+          //Clear audio queue here
           ws.close();
           if (audioContext) {
             audioContext.close();
@@ -66,9 +68,31 @@
       function openWebSocket() {
         let urlParams = new URLSearchParams(window.location.search);
         let depUrl = urlParams.get("depUrl");
+        let projectId = urlParams.get("projectId");
+        recordTime = urlParams.get("rt");
+        if (recordTime) {
+          recordTime = Number(recordTime);
+          if (isNaN(recordTime)) {
+            console.log("recordTime is not a number. Exiting...");
+            return;
+          }
+
+          if (recordTime < 50 || recordTime > 800) {
+            console.log("recordTime must be between 50 and 800. Exiting...");
+            return;
+          }
+        } else {
+          console.log("recordTime is not provided. Exiting...");
+          return;
+        }
 
         if (!depUrl) {
           console.log("depUrl is not provided. Exiting...");
+          return;
+        }
+
+        if (!projectId) {
+          console.log("projectId is not provided. Exiting...");
           return;
         }
 
@@ -85,7 +109,9 @@
           "&encoding=" +
           encodeURIComponent(encoding) +
           "&sample_rate=" +
-          encodeURIComponent(sampleRate);
+          encodeURIComponent(sampleRate) +
+          "&projectId=" +
+          encodeURIComponent(projectId);
 
         ws = new WebSocket(remoteUrl);
         //ws.binaryType = "arraybuffer";
@@ -282,7 +308,7 @@
           .getUserMedia({ audio: true })
           .then((stream) => {
             mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start(200);
+            mediaRecorder.start(recordTime);
             /** @type {Blob[]}
             mediaRecorder.ondataavailable = function (e) {
               console.log("Data available:", e.data);
@@ -301,14 +327,14 @@
                 reader.onload = function () {
                   var base64data = reader.result.split(",")[1];
                   var json = JSON.stringify({ type: "audio", payload: base64data }); //JSON
-                  console.log("Data available:", json);
-                  var end = performance.now();
-                  console.log("Time taken by FileReader:", end - start, "ms");
+                  //console.log("Data available and sending");
+                  //var end = performance.now();
+                  //console.log("Time taken by FileReader:", end - start, "ms");
                   ws.send(json);
-                  console.log("Packets would have been sent here:", packetsSent);
+                  //console.log("Packets would have been sent here:", packetsSent);
                   packetsSent++;
                 };
-                var start = performance.now();
+                //var start = performance.now();
                 reader.readAsDataURL(e.data); //base64
               }
             };
@@ -322,6 +348,10 @@
         if (mediaRecorder) {
           mediaRecorder.stop();
           audioQueue = [];
+          console.log("Audio queue cleared. and audio queue is now:", audioQueue);
+          console.log("Audio playing variable is now: ", audioPlaying);
+          audioPlaying = false;
+          console.log("Audio playing variable is now: ", audioPlaying);
         }
       }
     </script>

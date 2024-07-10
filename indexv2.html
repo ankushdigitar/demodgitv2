@@ -6,9 +6,8 @@
     <title>Audio Test</title>
 
     <link rel="stylesheet" href="main.css" />
-    <script src="https://cdn.auth0.com/js/auth0/9.16/auth0.min.js"></script>
-    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hark/1.2.0/hark.min.js"></script>
+    <!-- TODO: Call headless function from bundle here along with data params -->
   </head>
   <body>
     <div class="container">
@@ -18,7 +17,7 @@
 
       <div class="input-collector">
         <div class="inputs">
-          <select id="rag">
+          <!-- <select id="rag">
             <option value="false" selected>Speak without document</option>
             <option value="true">Speak with document</option>
           </select>
@@ -28,8 +27,9 @@
             <option value="ja">Japanese</option>
             <option value="hi">Hindi</option>
             <option value="pl">Polish</option>
-          </select>
+          </select> -->
 
+          <!-- TODO: Call headless function from bundle here -->
           <button id="toggleWebSocket" onclick="toggleWebSocket()">START SPEAKING</button>
         </div>
 
@@ -37,6 +37,7 @@
       </div>
     </div>
 
+    <!-- TODO: Remove the below code after adding bundle.js -->
     <script>
       var tenantId = "";
       var ws;
@@ -50,6 +51,7 @@
       let recordTime;
       let llm;
       let audioQueue = [];
+      let msgId = 1;
 
       function toggleWebSocket() {
         if (ws && ws.readyState === WebSocket.OPEN) {
@@ -153,7 +155,9 @@
           const message = JSON.parse(event.data);
           if (message.type === "transcript") {
             console.log("Transcript received:", message.payload);
-            document.getElementById("webSocketStatus").textContent = message.payload;
+            if (message.event === "speech_final" || message.event === "ai_full_response") {
+              document.getElementById("webSocketStatus").textContent += message.payload + "<br>";
+            }
           } else if (message.type === "clear") {
             console.log("Clear received");
             audioQueue = [];
@@ -313,7 +317,12 @@
         console.log(audioContext.sampleRate);
 
         navigator.mediaDevices
-          .getUserMedia({ audio: true })
+          .getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+            },
+          })
           .then((stream) => {
             mediaRecorder = new MediaRecorder(stream);
             mediaRecorder.start(recordTime);
@@ -329,6 +338,8 @@
               reader.readAsArrayBuffer(e.data);
 
               if (ws.readyState === WebSocket.OPEN) {
+                console.log(`Msg timestamp for msgId ${msgId}`, new Date().getTime());
+                msgId++;
                 ws.send(e.data);
                 //console.log("Packets would have been sent here:", packetsSent);
                 packetsSent++;

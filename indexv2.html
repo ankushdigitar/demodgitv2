@@ -71,8 +71,7 @@
       function openWebSocket() {
         let urlParams = new URLSearchParams(window.location.search);
         let depUrl = urlParams.get("depUrl");
-        let projectId = urlParams.get("projectId");
-        llm = urlParams.get("llm");
+        let assistantId = urlParams.get("assistantId");
         recordTime = urlParams.get("rt");
         if (recordTime) {
           recordTime = Number(recordTime);
@@ -90,38 +89,17 @@
           return;
         }
 
-        if (llm === null || llm !== "true") {
-          llm = "false";
-        }
-
         if (!depUrl) {
           console.log("depUrl is not provided. Exiting...");
           return;
         }
 
-        if (!projectId) {
+        if (!assistantId) {
           console.log("projectId is not provided. Exiting...");
           return;
         }
 
-        let language = document.getElementById("languageSelection").value;
-        let rag = document.getElementById("rag").value;
-        let encoding = "opuscat";
-        let sampleRate = 8000;
-        let remoteUrl =
-          depUrl +
-          "?language=" +
-          encodeURIComponent(language) +
-          "&rag=" +
-          encodeURIComponent(rag) +
-          "&encoding=" +
-          encodeURIComponent(encoding) +
-          "&sample_rate=" +
-          encodeURIComponent(sampleRate) +
-          "&projectId=" +
-          encodeURIComponent(projectId) +
-          "&llm=" +
-          encodeURIComponent(llm);
+        let remoteUrl = depUrl + "?language=en&assistantId=" + encodeURIComponent(assistantId);
 
         ws = new WebSocket(remoteUrl);
         ws.binaryType = "arraybuffer";
